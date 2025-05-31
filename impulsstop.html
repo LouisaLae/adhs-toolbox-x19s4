@@ -22,6 +22,153 @@
         <a href="impulsstop.html">✋ Impulsstopp</a>
     </nav>
     <h1>✋ Impulsstopp</h1>
-    <p>Hier wird das Tool eingebaut.</p>
+   <html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Impuls-Pause-Tool</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: auto; padding: 2em; }
+    textarea { width: 100%; height: 5em; margin-top: 0.5em; margin-bottom: 1em; }
+    button { padding: 0.5em 1em; margin-top: 0.5em; }
+    .card { background: #f0f0f0; padding: 1em; border-radius: 8px; margin-bottom: 1em; }
+    .log-entry { font-size: 0.9em; margin-top: 1em; background: #e8e8e8; padding: 0.5em; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>🧠 Impuls-Pause-Tool</h1>
+  <div id="app"></div>
+
+  <script>
+    const questions = [
+      "Was will ich gerade tun?",
+      "Warum will ich das tun?",
+      "Was erhoffe ich mir davon?",
+      "Gibt es ein anderes Bedürfnis dahinter?",
+      "Was wäre eine bewusste, gute Entscheidung?"
+    ];
+
+    let step = 0;
+    let answers = {};
+    let timer = 120;
+    const app = document.getElementById('app');
+
+    const loadLog = () => {
+      return JSON.parse(localStorage.getItem('impulsLog') || '[]');
+    };
+
+    const saveLog = (entry) => {
+      const log = loadLog();
+      log.unshift(entry);
+      localStorage.setItem('impulsLog', JSON.stringify(log));
+    };
+
+    const render = () => {
+      app.innerHTML = '';
+
+      if (step < questions.length) {
+        const q = questions[step];
+        const container = document.createElement('div');
+        container.className = 'card';
+
+        const label = document.createElement('p');
+        label.textContent = q;
+
+        const textarea = document.createElement('textarea');
+        textarea.value = answers[step] || '';
+        textarea.addEventListener('input', (e) => {
+          answers[step] = e.target.value;
+          btn.disabled = !e.target.value.trim();
+        });
+
+        const btn = document.createElement('button');
+        btn.textContent = 'Weiter';
+        btn.disabled = !answers[step];
+        btn.onclick = () => {
+          if (answers[step] && answers[step].trim() !== '') {
+            step++;
+            render();
+          } else {
+            alert('Bitte beantworte die Frage, bevor du fortfährst.');
+          }
+        };
+
+        container.append(label, textarea, btn);
+        app.append(container);
+      } else if (step === questions.length) {
+        const container = document.createElement('div');
+        container.className = 'card';
+
+        const timerDisplay = document.createElement('p');
+        timerDisplay.textContent = `⏳ Pause: ${timer} Sekunden`;
+        container.appendChild(timerDisplay);
+
+        app.append(container);
+
+        const countdown = setInterval(() => {
+          timer--;
+          timerDisplay.textContent = `⏳ Pause: ${timer} Sekunden`;
+
+          if (timer <= 0) {
+            clearInterval(countdown);
+
+            const finalLabel = document.createElement('p');
+            finalLabel.textContent = 'Was hast du letztlich gemacht?';
+            container.appendChild(finalLabel);
+
+            const finalInput = document.createElement('textarea');
+            container.appendChild(finalInput);
+
+            const btn = document.createElement('button');
+            btn.textContent = 'Entscheidung speichern';
+            btn.onclick = () => {
+              answers['final'] = finalInput.value.trim();
+              saveLog({ date: new Date().toLocaleString(), answers });
+              step = 0;
+              answers = {};
+              timer = 120;
+              render();
+            };
+            container.appendChild(btn);
+          }
+        }, 1000);
+      }
+
+      // Log anzeigen
+      const log = loadLog();
+      if (log.length > 0) {
+        const logTitle = document.createElement('h2');
+        logTitle.textContent = '📘 Vergangene Impuls-Pausen';
+        app.appendChild(logTitle);
+
+        log.forEach(entry => {
+          const div = document.createElement('div');
+          div.className = 'log-entry';
+
+          const date = document.createElement('strong');
+          date.textContent = entry.date;
+          div.appendChild(date);
+
+          const ul = document.createElement('ul');
+          questions.forEach((q, idx) => {
+            const li = document.createElement('li');
+            li.textContent = `${q}: ${entry.answers[idx] || ''}`;
+            ul.appendChild(li);
+          });
+
+          if (entry.answers.final) {
+            const li = document.createElement('li');
+            li.textContent = `Letztlich gemacht: ${entry.answers.final}`;
+            ul.appendChild(li);
+          }
+
+          div.appendChild(ul);
+          app.appendChild(div);
+        });
+      }
+    };
+
+    render();
+  </script>
 </body>
 </html>
