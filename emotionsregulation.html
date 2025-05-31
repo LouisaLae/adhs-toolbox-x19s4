@@ -22,6 +22,83 @@
         <a href="impulsstop.html">✋ Impulsstopp</a>
     </nav>
     <h1>😊 Emotionen regulieren</h1>
-    <p>Hier wird das Tool eingebaut.</p>
+        <div class="question" id="q1">
+      <label>Was fühlst du gerade?</label>
+      <select id="feeling">
+        <option value="">Bitte auswählen</option>
+        <option value="wütend">Wut</option>
+        <option value="ängstlich">Angst</option>
+        <option value="traurig">Traurigkeit</option>
+        <option value="überfordert">Überforderung</option>
+        <option value="leer">Leere</option>
+      </select>
+    </div>
+
+    <div class="question" id="q2">
+      <label>Wie stark ist das Gefühl? (1 = schwach, 10 = sehr stark)</label>
+      <input type="text" id="intensity" placeholder="z. B. 7" />
+    </div>
+
+    <div class="question" id="q3">
+      <label>Was brauchst du gerade am meisten?</label>
+      <select id="goal">
+        <option value="">Bitte auswählen</option>
+        <option value="beruhigen">Mich beruhigen</option>
+        <option value="klar denken">Klar denken</option>
+        <option value="nicht impulsiv handeln">Nicht impulsiv handeln</option>
+        <option value="Gefühl zulassen">Gefühl zulassen</option>
+      </select>
+    </div>
+
+    <button onclick="generateStrategy()">Strategie anzeigen</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const strategies = {
+      beruhigen: [
+        "4-7-8-Atmung: 4 Sekunden einatmen, 7 halten, 8 ausatmen.",
+        "Drücke deine Füße fest in den Boden und spüre dein Gewicht.",
+        "Finde 5 Dinge, die du sehen, hören, fühlen, riechen und schmecken kannst." 
+      ],
+      "klar denken": [
+        "Schreibe deine Gedanken auf – ohne Bewertung.",
+        "Stell dir vor, du wärst ein neutraler Beobachter deiner Situation.",
+        "Geh 5 Minuten spazieren ohne Handy oder Musik." 
+      ],
+      "nicht impulsiv handeln": [
+        "Zähle langsam rückwärts von 50 in Dreierschritten.",
+        "Warte 10 Minuten, bevor du handelst – stelle einen Timer.",
+        "Denk daran: Gefühle gehen vorbei – du musst jetzt nicht reagieren." 
+      ],
+      "Gefühl zulassen": [
+        "Lege die Hand aufs Herz und sage: 'Dieses Gefühl darf da sein.'",
+        "Schreibe dem Gefühl einen Brief, ohne ihn abzuschicken.",
+        "Welche Farbe und Form hat dein Gefühl? Male es als Symbol." 
+      ]
+    };
+
+    function generateStrategy() {
+      const feeling = document.getElementById("feeling").value;
+      const intensity = document.getElementById("intensity").value;
+      const goal = document.getElementById("goal").value;
+      const resultDiv = document.getElementById("result");
+
+      if (!feeling || !intensity || !goal) {
+        resultDiv.innerHTML = "<strong>Bitte beantworte alle Fragen.</strong>";
+        return;
+      }
+
+      const list = strategies[goal];
+      const randomIndex = Math.floor(Math.random() * list.length);
+      const strategy = list[randomIndex];
+
+      resultDiv.innerHTML = `<strong>Gefühl:</strong> ${feeling}<br>
+                             <strong>Intensität:</strong> ${intensity}<br>
+                             <strong>Ziel:</strong> ${goal}<br><br>
+                             <strong>Strategie-Vorschlag:</strong><br>${strategy}`;
+    }
+  </script>
 </body>
 </html>
